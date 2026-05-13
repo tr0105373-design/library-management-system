@@ -1,46 +1,34 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "./Sidebar";
+import { API_URL } from "./config";
 
 function Issues() {
   const token = localStorage.getItem("token");
   const name = localStorage.getItem("name");
   const headers = { Authorization: `Bearer ${token}` };
-
   const [issues, setIssues] = useState([]);
   const [form, setForm] = useState({ book_id: "", member_id: "" });
   const [returnForm, setReturnForm] = useState({ issue_id: "", book_id: "" });
   const [message, setMessage] = useState("");
 
-  const fetchIssues = () => {
-    axios.get("http://localhost:5000/api/issues", { headers })
-      .then((res) => setIssues(res.data));
-  };
-
+  const fetchIssues = () => { axios.get(`${API_URL}/api/issues`, { headers }).then((res) => setIssues(res.data)); };
   useEffect(() => { fetchIssues(); }, []);
 
   const handleIssue = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/issues/issue", form, { headers });
-      setMessage("✅ " + res.data.message);
-      fetchIssues();
-      setForm({ book_id: "", member_id: "" });
-    } catch (err) {
-      setMessage("❌ " + (err.response?.data?.message || "Error issuing book!"));
-    }
+      const res = await axios.post(`${API_URL}/api/issues/issue`, form, { headers });
+      setMessage("✅ " + res.data.message); fetchIssues(); setForm({ book_id: "", member_id: "" });
+    } catch (err) { setMessage("❌ " + (err.response?.data?.message || "Error!")); }
   };
 
   const handleReturn = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/issues/return", returnForm, { headers });
-      setMessage("✅ " + res.data.message);
-      fetchIssues();
-      setReturnForm({ issue_id: "", book_id: "" });
-    } catch (err) {
-      setMessage("❌ Error returning book!");
-    }
+      const res = await axios.post(`${API_URL}/api/issues/return`, returnForm, { headers });
+      setMessage("✅ " + res.data.message); fetchIssues(); setReturnForm({ issue_id: "", book_id: "" });
+    } catch { setMessage("❌ Error returning!"); }
   };
 
   return (
@@ -52,49 +40,26 @@ function Issues() {
           <button style={styles.logoutBtn} onClick={() => { localStorage.clear(); window.location.href = "/"; }}>Logout</button>
         </div>
       </div>
-
       <div style={styles.layout}>
         <Sidebar />
         <div style={styles.content}>
           <h2 style={styles.heading}>📋 Issue & Return Books</h2>
-
-          {message && (
-            <p style={{ padding: "10px", backgroundColor: message.includes("✅") ? "#d4edda" : "#f8d7da", color: message.includes("✅") ? "#155724" : "#721c24", borderRadius: "6px", marginBottom: "15px" }}>
-              {message}
-            </p>
-          )}
+          {message && <p style={{ padding: "10px", backgroundColor: message.includes("✅") ? "#d4edda" : "#f8d7da", color: message.includes("✅") ? "#155724" : "#721c24", borderRadius: "6px", marginBottom: "15px" }}>{message}</p>}
 
           <div style={styles.formsRow}>
             <div style={styles.formBox}>
               <h3 style={styles.formTitle}>📤 Issue Book</h3>
               <form onSubmit={handleIssue}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Book ID *</label>
-                  <input style={styles.input} placeholder="Enter Book ID" value={form.book_id}
-                    onChange={(e) => setForm({ ...form, book_id: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Member ID *</label>
-                  <input style={styles.input} placeholder="Enter Member ID" value={form.member_id}
-                    onChange={(e) => setForm({ ...form, member_id: e.target.value })} required />
-                </div>
+                <div style={styles.formGroup}><label style={styles.label}>Book ID *</label><input style={styles.input} placeholder="Book ID" value={form.book_id} onChange={(e) => setForm({ ...form, book_id: e.target.value })} required /></div>
+                <div style={styles.formGroup}><label style={styles.label}>Member ID *</label><input style={styles.input} placeholder="Member ID" value={form.member_id} onChange={(e) => setForm({ ...form, member_id: e.target.value })} required /></div>
                 <button style={styles.issueBtn} type="submit">📤 Issue Book</button>
               </form>
             </div>
-
             <div style={styles.formBox}>
               <h3 style={styles.formTitle}>📥 Return Book</h3>
               <form onSubmit={handleReturn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Issue ID *</label>
-                  <input style={styles.input} placeholder="Enter Issue ID" value={returnForm.issue_id}
-                    onChange={(e) => setReturnForm({ ...returnForm, issue_id: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Book ID *</label>
-                  <input style={styles.input} placeholder="Enter Book ID" value={returnForm.book_id}
-                    onChange={(e) => setReturnForm({ ...returnForm, book_id: e.target.value })} required />
-                </div>
+                <div style={styles.formGroup}><label style={styles.label}>Issue ID *</label><input style={styles.input} placeholder="Issue ID" value={returnForm.issue_id} onChange={(e) => setReturnForm({ ...returnForm, issue_id: e.target.value })} required /></div>
+                <div style={styles.formGroup}><label style={styles.label}>Book ID *</label><input style={styles.input} placeholder="Book ID" value={returnForm.book_id} onChange={(e) => setReturnForm({ ...returnForm, book_id: e.target.value })} required /></div>
                 <button style={styles.returnBtn} type="submit">📥 Return Book</button>
               </form>
             </div>
@@ -103,36 +68,18 @@ function Issues() {
           <div style={styles.tableBox}>
             <h3 style={styles.formTitle}>📋 All Issues ({issues.length})</h3>
             <table style={styles.table}>
-              <thead>
-                <tr style={styles.thead}>
-                  <th style={styles.th}>Issue ID</th>
-                  <th style={styles.th}>Book</th>
-                  <th style={styles.th}>Member</th>
-                  <th style={styles.th}>Issue Date</th>
-                  <th style={styles.th}>Due Date</th>
-                  <th style={styles.th}>Return Date</th>
-                  <th style={styles.th}>Status</th>
-                </tr>
-              </thead>
+              <thead><tr style={styles.thead}>
+                <th style={styles.th}>Issue ID</th><th style={styles.th}>Book</th><th style={styles.th}>Member</th>
+                <th style={styles.th}>Issue Date</th><th style={styles.th}>Due Date</th><th style={styles.th}>Return Date</th><th style={styles.th}>Status</th>
+              </tr></thead>
               <tbody>
-                {issues.length === 0 ? (
-                  <tr><td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>No issues yet!</td></tr>
-                ) : (
+                {issues.length === 0 ? <tr><td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>No issues yet!</td></tr> : (
                   issues.map((i, idx) => (
                     <tr key={i.issue_id} style={{ backgroundColor: idx % 2 === 0 ? "#f9f9f9" : "white" }}>
-                      <td style={styles.td}>{i.issue_id}</td>
-                      <td style={styles.td}><strong>{i.title}</strong></td>
-                      <td style={styles.td}>{i.name}</td>
-                      <td style={styles.td}>{i.issue_date?.split("T")[0]}</td>
-                      <td style={styles.td}>{i.due_date?.split("T")[0]}</td>
+                      <td style={styles.td}>{i.issue_id}</td><td style={styles.td}><strong>{i.title}</strong></td><td style={styles.td}>{i.name}</td>
+                      <td style={styles.td}>{i.issue_date?.split("T")[0]}</td><td style={styles.td}>{i.due_date?.split("T")[0]}</td>
                       <td style={styles.td}>{i.return_date ? i.return_date.split("T")[0] : "-"}</td>
-                      <td style={styles.td}>
-                        <span style={{
-                          padding: "3px 10px", borderRadius: "12px", fontSize: "12px",
-                          backgroundColor: i.status === "issued" ? "#fff3cd" : i.status === "returned" ? "#d4edda" : "#f8d7da",
-                          color: i.status === "issued" ? "#856404" : i.status === "returned" ? "#155724" : "#721c24"
-                        }}>{i.status}</span>
-                      </td>
+                      <td style={styles.td}><span style={{ padding: "3px 10px", borderRadius: "12px", fontSize: "12px", backgroundColor: i.status === "issued" ? "#fff3cd" : i.status === "returned" ? "#d4edda" : "#f8d7da", color: i.status === "issued" ? "#856404" : i.status === "returned" ? "#155724" : "#721c24" }}>{i.status}</span></td>
                     </tr>
                   ))
                 )}

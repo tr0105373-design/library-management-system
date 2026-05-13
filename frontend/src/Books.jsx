@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "./Sidebar";
+import { API_URL } from "./config";
 
 function Books() {
   const token = localStorage.getItem("token");
@@ -16,7 +17,7 @@ function Books() {
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchBooks = () => {
-    axios.get("http://localhost:5000/api/books", { headers })
+    axios.get(`${API_URL}/api/books`, { headers })
       .then((res) => setBooks(res.data))
       .catch((err) => console.log(err));
   };
@@ -26,7 +27,7 @@ function Books() {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/books/add", form, { headers });
+      await axios.post(`${API_URL}/api/books/add`, form, { headers });
       setMessage("✅ Book added successfully!");
       fetchBooks();
       setForm({ title: "", author: "", isbn: "", publisher: "", year: "", category_id: 1, total_copies: 1 });
@@ -37,14 +38,14 @@ function Books() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure?")) {
-      await axios.delete(`http://localhost:5000/api/books/${id}`, { headers });
+      await axios.delete(`${API_URL}/api/books/${id}`, { headers });
       fetchBooks();
     }
   };
 
   const handleSearch = async () => {
     if (!search) { fetchBooks(); return; }
-    const res = await axios.get(`http://localhost:5000/api/books/search?query=${search}`, { headers });
+    const res = await axios.get(`${API_URL}/api/books/search?query=${search}`, { headers });
     setBooks(res.data);
   };
 
@@ -81,36 +82,14 @@ function Books() {
             <h3 style={styles.formTitle}>➕ Add New Book</h3>
             <form onSubmit={handleAdd}>
               <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Title *</label>
-                  <input style={styles.input} placeholder="Book Title" value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Author *</label>
-                  <input style={styles.input} placeholder="Author Name" value={form.author}
-                    onChange={(e) => setForm({ ...form, author: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>ISBN</label>
-                  <input style={styles.input} placeholder="ISBN Number" value={form.isbn}
-                    onChange={(e) => setForm({ ...form, isbn: e.target.value })} />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Publisher</label>
-                  <input style={styles.input} placeholder="Publisher" value={form.publisher}
-                    onChange={(e) => setForm({ ...form, publisher: e.target.value })} />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Year</label>
-                  <input style={styles.input} placeholder="Year" value={form.year}
-                    onChange={(e) => setForm({ ...form, year: e.target.value })} />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Total Copies</label>
-                  <input style={styles.input} placeholder="Copies" type="number" value={form.total_copies}
-                    onChange={(e) => setForm({ ...form, total_copies: e.target.value })} />
-                </div>
+                {[["Title *", "title", "Book Title"], ["Author *", "author", "Author Name"], ["ISBN", "isbn", "ISBN"], ["Publisher", "publisher", "Publisher"], ["Year", "year", "Year"], ["Total Copies", "total_copies", "Copies"]].map(([label, key, ph]) => (
+                  <div key={key} style={styles.formGroup}>
+                    <label style={styles.label}>{label}</label>
+                    <input style={styles.input} placeholder={ph} value={form[key]}
+                      onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                      required={label.includes("*")} type={key === "total_copies" ? "number" : "text"} />
+                  </div>
+                ))}
               </div>
               <button style={styles.addBtn} type="submit">➕ Add Book</button>
             </form>
@@ -121,16 +100,11 @@ function Books() {
             <table style={styles.table}>
               <thead>
                 <tr style={styles.thead}>
-                  <th style={styles.th}>ID</th>
-                  <th style={styles.th}>Title</th>
-                  <th style={styles.th}>Author</th>
-                  <th style={styles.th}>ISBN</th>
-                  <th style={styles.th}>Publisher</th>
-                  <th style={styles.th}>Year</th>
-                  <th style={styles.th}>Total</th>
-                  <th style={styles.th}>Available</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Action</th>
+                  <th style={styles.th}>ID</th><th style={styles.th}>Title</th>
+                  <th style={styles.th}>Author</th><th style={styles.th}>ISBN</th>
+                  <th style={styles.th}>Publisher</th><th style={styles.th}>Year</th>
+                  <th style={styles.th}>Total</th><th style={styles.th}>Available</th>
+                  <th style={styles.th}>Status</th><th style={styles.th}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -148,34 +122,25 @@ function Books() {
                       <td style={styles.td}>{b.total_copies}</td>
                       <td style={styles.td}>{b.available_copies}</td>
                       <td style={styles.td}>
-                        <span style={{
-                          padding: "3px 10px", borderRadius: "12px", fontSize: "12px",
-                          backgroundColor: b.available_copies > 0 ? "#d4edda" : "#f8d7da",
-                          color: b.available_copies > 0 ? "#155724" : "#721c24"
-                        }}>
+                        <span style={{ padding: "3px 10px", borderRadius: "12px", fontSize: "12px", backgroundColor: b.available_copies > 0 ? "#d4edda" : "#f8d7da", color: b.available_copies > 0 ? "#155724" : "#721c24" }}>
                           {b.available_copies > 0 ? "Available" : "Not Available"}
                         </span>
                       </td>
                       <td style={styles.td}>
                         <button style={styles.deleteBtn} onClick={() => handleDelete(b.book_id)}>🗑️ Delete</button>
-                      </td>
-                      
-                      <td style={styles.td}>
-                         <button style={styles.deleteBtn} onClick={() => handleDelete(b.book_id)}>🗑️ Delete</button>
-                         {" "}
-                         <button style={styles.lostBtn} onClick={async () => {
+                        {" "}
+                        <button style={styles.lostBtn} onClick={async () => {
                           const issueId = prompt("Enter Issue ID for lost book:");
-                           if (issueId) {
-                          try {
-                              await axios.post("http://localhost:5000/api/books/lost", { book_id: b.book_id, issue_id: issueId }, { headers });
-                             alert("✅ Book marked as lost!");
-                             fetchBooks();
+                          if (issueId) {
+                            try {
+                              await axios.post(`${API_URL}/api/books/lost`, { book_id: b.book_id, issue_id: issueId }, { headers });
+                              alert("✅ Book marked as lost!");
+                              fetchBooks();
                             } catch { alert("❌ Error!"); }
                           }
                         }}>📛 Lost</button>
-                  </td>
-
-                  </tr>
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>

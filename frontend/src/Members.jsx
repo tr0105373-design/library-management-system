@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "./Sidebar";
+import { API_URL } from "./config";
 
 function Members() {
   const token = localStorage.getItem("token");
@@ -16,9 +17,7 @@ function Members() {
   });
 
   const fetchMembers = () => {
-    axios.get("http://localhost:5000/api/members", { headers })
-      .then((res) => setMembers(res.data))
-      .catch((err) => console.log(err));
+    axios.get(`${API_URL}/api/members`, { headers }).then((res) => setMembers(res.data)).catch((err) => console.log(err));
   };
 
   useEffect(() => { fetchMembers(); }, []);
@@ -26,39 +25,29 @@ function Members() {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      const userRes = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        { name: form.name, email: form.email, password: form.password, role: form.role },
-        { headers }
-      );
-      await axios.post(
-        "http://localhost:5000/api/members/add",
-        { user_id: userRes.data.user_id, member_type: form.member_type, max_books: form.max_books },
-        { headers }
-      );
+      const userRes = await axios.post(`${API_URL}/api/auth/register`,
+        { name: form.name, email: form.email, password: form.password, role: form.role }, { headers });
+      await axios.post(`${API_URL}/api/members/add`,
+        { user_id: userRes.data.user_id, member_type: form.member_type, max_books: form.max_books }, { headers });
       setMessage("✅ Member added successfully!");
       fetchMembers();
       setForm({ name: "", email: "", password: "", role: "student", member_type: "student", max_books: 3 });
-    } catch (err) {
-      setMessage("❌ Error! Email already exists.");
-    }
+    } catch { setMessage("❌ Error! Email already exists."); }
   };
 
   const handleSearch = async () => {
     if (!search) { fetchMembers(); return; }
-    const res = await axios.get(`http://localhost:5000/api/members/search?query=${search}`, { headers });
+    const res = await axios.get(`${API_URL}/api/members/search?query=${search}`, { headers });
     setMembers(res.data);
   };
 
   const handleDelete = async (memberId) => {
-    if (window.confirm("Are you sure you want to delete this member?")) {
+    if (window.confirm("Delete this member?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/members/${memberId}`, { headers });
-        setMessage("✅ Member deleted successfully!");
+        await axios.delete(`${API_URL}/api/members/${memberId}`, { headers });
+        setMessage("✅ Member deleted!");
         fetchMembers();
-      } catch (err) {
-        setMessage("❌ Cannot delete — member has active issues!");
-      }
+      } catch { setMessage("❌ Cannot delete — member has active issues!"); }
     }
   };
 
@@ -71,17 +60,11 @@ function Members() {
           <button style={styles.logoutBtn} onClick={() => { localStorage.clear(); window.location.href = "/"; }}>Logout</button>
         </div>
       </div>
-
       <div style={styles.layout}>
         <Sidebar />
         <div style={styles.content}>
           <h2 style={styles.heading}>👥 Members Management</h2>
-
-          {message && (
-            <p style={{ padding: "10px", backgroundColor: message.includes("✅") ? "#d4edda" : "#f8d7da", color: message.includes("✅") ? "#155724" : "#721c24", borderRadius: "6px", marginBottom: "15px" }}>
-              {message}
-            </p>
-          )}
+          {message && <p style={{ padding: "10px", backgroundColor: message.includes("✅") ? "#d4edda" : "#f8d7da", color: message.includes("✅") ? "#155724" : "#721c24", borderRadius: "6px", marginBottom: "15px" }}>{message}</p>}
 
           <div style={styles.searchRow}>
             <input style={styles.searchInput} placeholder="🔍 Search by name or email..."
@@ -95,34 +78,16 @@ function Members() {
             <h3 style={styles.formTitle}>➕ Add New Member</h3>
             <form onSubmit={handleAdd}>
               <div style={styles.formRow}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Full Name *</label>
-                  <input style={styles.input} placeholder="Full Name" value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Email *</label>
-                  <input style={styles.input} placeholder="Email" type="email" value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Password *</label>
-                  <input style={styles.input} placeholder="Password" type="password" value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Member Type</label>
-                  <select style={styles.input} value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value, member_type: e.target.value })}>
+                <div style={styles.formGroup}><label style={styles.label}>Full Name *</label><input style={styles.input} placeholder="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
+                <div style={styles.formGroup}><label style={styles.label}>Email *</label><input style={styles.input} placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></div>
+                <div style={styles.formGroup}><label style={styles.label}>Password *</label><input style={styles.input} placeholder="Password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></div>
+                <div style={styles.formGroup}><label style={styles.label}>Member Type</label>
+                  <select style={styles.input} value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value, member_type: e.target.value })}>
                     <option value="student">Student</option>
                     <option value="faculty">Faculty</option>
                   </select>
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Max Books</label>
-                  <input style={styles.input} placeholder="Max Books" type="number" value={form.max_books}
-                    onChange={(e) => setForm({ ...form, max_books: e.target.value })} />
-                </div>
+                <div style={styles.formGroup}><label style={styles.label}>Max Books</label><input style={styles.input} placeholder="Max Books" type="number" value={form.max_books} onChange={(e) => setForm({ ...form, max_books: e.target.value })} /></div>
               </div>
               <button style={styles.addBtn} type="submit">➕ Add Member</button>
             </form>
@@ -131,21 +96,12 @@ function Members() {
           <div style={styles.tableBox}>
             <h3 style={styles.formTitle}>👥 All Members ({members.length})</h3>
             <table style={styles.table}>
-              <thead>
-                <tr style={styles.thead}>
-                  <th style={styles.th}>ID</th>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Email</th>
-                  <th style={styles.th}>Type</th>
-                  <th style={styles.th}>Max Books</th>
-                  <th style={styles.th}>Status</th>
-                  <th style={styles.th}>Action</th>
-                </tr>
-              </thead>
+              <thead><tr style={styles.thead}>
+                <th style={styles.th}>ID</th><th style={styles.th}>Name</th><th style={styles.th}>Email</th>
+                <th style={styles.th}>Type</th><th style={styles.th}>Max Books</th><th style={styles.th}>Status</th><th style={styles.th}>Action</th>
+              </tr></thead>
               <tbody>
-                {members.length === 0 ? (
-                  <tr><td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>No members found!</td></tr>
-                ) : (
+                {members.length === 0 ? <tr><td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>No members found!</td></tr> : (
                   members.map((m, i) => (
                     <tr key={m.member_id} style={{ backgroundColor: i % 2 === 0 ? "#f9f9f9" : "white" }}>
                       <td style={styles.td}>{m.member_id}</td>
@@ -153,18 +109,8 @@ function Members() {
                       <td style={styles.td}>{m.email}</td>
                       <td style={styles.td}>{m.member_type}</td>
                       <td style={styles.td}>{m.max_books}</td>
-                      <td style={styles.td}>
-                        <span style={{
-                          padding: "3px 10px", borderRadius: "12px", fontSize: "12px",
-                          backgroundColor: m.status === "active" ? "#d4edda" : "#f8d7da",
-                          color: m.status === "active" ? "#155724" : "#721c24"
-                        }}>{m.status}</span>
-                      </td>
-                      <td style={styles.td}>
-                        <button style={styles.deleteBtn} onClick={() => handleDelete(m.member_id)}>
-                          🗑️ Delete
-                        </button>
-                      </td>
+                      <td style={styles.td}><span style={{ padding: "3px 10px", borderRadius: "12px", fontSize: "12px", backgroundColor: m.status === "active" ? "#d4edda" : "#f8d7da", color: m.status === "active" ? "#155724" : "#721c24" }}>{m.status}</span></td>
+                      <td style={styles.td}><button style={styles.deleteBtn} onClick={() => handleDelete(m.member_id)}>🗑️ Delete</button></td>
                     </tr>
                   ))
                 )}
