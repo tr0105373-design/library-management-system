@@ -27,17 +27,22 @@ router.post('/login', (req, res) => {
 
       const user = results[0];
 
-      // extra safety check (IMPORTANT)
       if (!user.password) {
         return res.status(500).json({ message: 'User password missing in DB' });
       }
 
+      // ---------------- FIX HERE ----------------
       let isMatch = false;
 
       try {
-        isMatch = await bcrypt.compare(password, user.password);
+        // SAFE FIX: supports plain text + bcrypt both
+        if (user.password.startsWith('$2')) {
+          isMatch = await bcrypt.compare(password, user.password);
+        } else {
+          isMatch = (password === user.password);
+        }
       } catch (e) {
-        console.log("Bcrypt error:", e);
+        console.log("Password check error:", e);
         return res.status(500).json({ message: 'Password check error' });
       }
 
@@ -60,7 +65,7 @@ router.post('/login', (req, res) => {
   );
 });
 
-// ---------------- REGISTER ----------------
+// ---------------- REGISTER (UNCHANGED) ----------------
 router.post('/register', async (req, res) => {
   const { name, email, password, role } = req.body;
 
