@@ -47,7 +47,7 @@ npm run dev
 
 ## Default Login Credentials
 Admin Login:
-- Email: admin@library.com
+- Email: admin@Library.com
 - Password: admin123
 
 Librarian Login:

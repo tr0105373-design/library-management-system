@@ -12,20 +12,15 @@ function Login() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      //  const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post("/api/auth/login", {
         email,
         password,
       });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("name", res.data.name);
-      // window.location.href = "/dashboard";
-//       const userRole = res.data.role;
-// if (userRole === "student" || userRole === "faculty") {
-//   window.location.href = "/student";
-// } else {
-//   window.location.href = "/dashboard";
-// }
+    
     const userRole = res.data.role;
 if (userRole === "student" || userRole === "faculty") {
   window.location.href = "/student";

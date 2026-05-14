@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// API Routes
+/* ---------------- API ROUTES ---------------- */
 const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const memberRoutes = require('./routes/memberRoutes');
@@ -26,12 +26,19 @@ app.use('/api/issues', issueRoutes);
 app.use('/api/fines', fineRoutes);
 app.use('/api/reports', reportRoutes);
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+/* ---------------- FRONTEND (VITE BUILD) ---------------- */
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+// correct Vite build path
+const frontendPath = path.join(__dirname, 'frontend/dist');
+
+app.use(express.static(frontendPath));
+
+// IMPORTANT: React/Vite routing fix
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
+
+/* ---------------- SERVER ---------------- */
 
 const PORT = process.env.PORT || 10000;
 
