@@ -1,11 +1,19 @@
-const db = require('./config/db');
+const bcrypt = require("bcryptjs");
+const db = require("./config/db");
 
-db.query("UPDATE users SET password = '123456'", (err, result) => {
-  if (err) {
-    console.log("Error:", err);
-  } else {
-    console.log("Passwords updated successfully ✔");
-  }
+(async () => {
+  const hash = await bcrypt.hash("123456", 10);
 
-  process.exit();
-});
+  db.query(
+    "UPDATE users SET password = $1",
+    [hash],
+    (err) => {
+      if (err) {
+        console.log("Error:", err);
+      } else {
+        console.log("Password updated ✔");
+      }
+      process.exit();
+    }
+  );
+})();
