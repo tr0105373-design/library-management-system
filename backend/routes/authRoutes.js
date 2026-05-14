@@ -191,68 +191,48 @@ const db = require('../config/db');
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password required' });
-  }
+  db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
+    if (err) return res.status(500).json({ message: 'Server error' });
 
-  db.query(
-    'SELECT * FROM users WHERE email = ?',
-    [email],
-    (err, results) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Server error' });
-      }
-
-      if (!results || results.length === 0) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-
-      const user = results[0];
-
-      // 🔥 SIMPLE PASSWORD CHECK (WORKS FOR ALL CASES)
-      if (password !== user.password) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-
-      const token = jwt.sign(
-        { user_id: user.user_id, role: user.role },
-        process.env.JWT_SECRET || "secretkey",
-        { expiresIn: '8h' }
-      );
-
-      return res.json({
-        token,
-        role: user.role,
-        name: user.name
-      });
+    if (!results || results.length === 0) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-  );
-});
 
-/* ---------------- REGISTER ---------------- */
-router.post('/register', (req, res) => {
-  const { name, email, password, role } = req.body;
+    const user = results[0];
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'All fields required' });
-  }
+    let isMatch = false;
 
-  db.query(
-    'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-    [name, email, password, role || 'student'],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Email already exists' });
+    try {
+      // 🔥 SUPPORT BOTH TYPES
+      if (user.password.startsWith('$2')) {
+        // bcrypt password
+        const bcrypt = require('bcryptjs');
+        isMatch = await bcrypt.compare(password, user.password);
+      } else {
+        // plain password
+        isMatch = password === user.password;
       }
-
-      return res.json({
-        message: 'User registered successfully!',
-        user_id: result.insertId
-      });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({ message: 'Password check error' });
     }
-  );
-});
 
-module.exports = router;
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const jwt = require('jsonwebtoken');
+
+    const token = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: '8h' }
+    );
+
+    return res.json({
+      token,
+      role: user.role,
+      name: user.name
+    });
+  });
+});
