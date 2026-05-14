@@ -28,24 +28,16 @@ app.use('/api/reports', reportRoutes);
 
 /* ---------------- FRONTEND (VITE BUILD) ---------------- */
 
-// correct Vite build path
-const frontendPath = path.join(__dirname, 'frontend/dist');
+// ✅ IMPORTANT: correct path for Render structure
+const frontendPath = path.join(__dirname, '../frontend/dist');
 
+// serve static files
 app.use(express.static(frontendPath));
 
-// IMPORTANT: React/Vite routing fix
-app.use(express.static(frontendPath));
-
-// React/Vite fallback route (SAFE for Express v5)
-// app.use((req, res) => {
-//   res.sendFile(path.join(frontendPath, "index.html"));
-// });
-app.use(express.static(frontendPath));
-
+// fallback route for React/Vite SPA
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
-
 
 /* ---------------- SERVER ---------------- */
 
