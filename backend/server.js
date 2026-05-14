@@ -37,9 +37,15 @@ app.use(express.static(frontendPath));
 app.use(express.static(frontendPath));
 
 // React/Vite fallback route (SAFE for Express v5)
+// app.use((req, res) => {
+//   res.sendFile(path.join(frontendPath, "index.html"));
+// });
+app.use(express.static(frontendPath));
+
 app.use((req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
+
 
 /* ---------------- SERVER ---------------- */
 
