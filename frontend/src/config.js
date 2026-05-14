@@ -1,0 +1,1 @@
+export const API_URL = "https://library-management-system-z8fc.onrender.com/api";
