@@ -1,6 +1,7 @@
-require("dotenv").config();
-const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
+const { Pool } = require("pg");
+
+require("dotenv").config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -21,9 +22,8 @@ const pool = new Pool({
       "UPDATE users SET password=$1 WHERE email=$2",
       [hash, u.email]
     );
-
-    console.log(`Updated: ${u.email}`);
   }
 
+  console.log("RESET DONE");
   process.exit();
 })();
