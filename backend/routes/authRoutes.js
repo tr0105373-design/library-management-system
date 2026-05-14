@@ -7,6 +7,7 @@ const db = require('../config/db');
 /* ---------------- LOGIN ---------------- */
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
+  console.log("LOGIN API HIT:", req.body);
 
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password required' });
