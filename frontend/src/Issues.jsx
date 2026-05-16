@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import { API_URL } from "./config";
-import api from "./api";   // ✅ FIX: use central axios instance
+// import api from "./api";   // ✅ FIX: use central axios instance
 
 function Issues() {
   const name = localStorage.getItem("name");
