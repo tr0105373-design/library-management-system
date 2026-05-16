@@ -13,15 +13,15 @@ const handleLogin = async (e) => {
 
  try {
   const res = await axios.post(
-    "http://localhost:5000/api/auth/login",
+    "https://library-management-system-z8fc.onrender.com/api/auth/login",
     {
       email: email.trim(),
-      password: password.trim()
+      password: password.trim(),
     },
     {
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     }
   );
 
