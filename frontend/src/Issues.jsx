@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { API_URL } from "./config";
-// import api from "./api";   // ✅ FIX: use central axios instance
+// import { API_URL } from "./config";
+import api from "./api";   // ✅ FIX: use central axios instance
 
 function Issues() {
   const name = localStorage.getItem("name");
@@ -223,5 +223,88 @@ function Issues() {
     </div>
   );
 }
+
+const styles = {
+  container: { display: "flex", flexDirection: "column", height: "100vh" },
+
+  navbar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#1e3a8a",
+    color: "white",
+    padding: "10px 20px"
+  },
+
+  navTitle: { margin: 0 },
+
+  welcome: { fontWeight: "bold" },
+
+  logoutBtn: {
+    backgroundColor: "#ef4444",
+    color: "white",
+    border: "none",
+    padding: "6px 12px",
+    borderRadius: "4px",
+    cursor: "pointer"
+  },
+
+  layout: { display: "flex", flex: 1 },
+
+  content: { flex: 1, padding: "20px" },
+
+  heading: { marginBottom: "20px" },
+
+  formsRow: { display: "flex", gap: "20px", flexWrap: "wrap" },
+
+  formBox: {
+    backgroundColor: "#f9fafb",
+    padding: "20px",
+    borderRadius: "8px",
+    minWidth: "250px"
+  },
+
+  formTitle: { marginBottom: "10px" },
+
+  formGroup: { display: "flex", flexDirection: "column", marginBottom: "10px" },
+
+  label: { marginBottom: "4px" },
+
+  input: {
+    padding: "6px",
+    border: "1px solid #ccc",
+    borderRadius: "4px"
+  },
+
+  issueBtn: {
+    marginTop: "10px",
+    padding: "8px 12px",
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer"
+  },
+
+  returnBtn: {
+    marginTop: "10px",
+    padding: "8px 12px",
+    backgroundColor: "#16a34a",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer"
+  },
+
+  tableBox: { marginTop: "20px" },
+
+  table: { width: "100%", borderCollapse: "collapse" },
+
+  thead: { backgroundColor: "#e5e7eb" },
+
+  th: { padding: "10px", border: "1px solid #ddd" },
+
+  td: { padding: "10px", border: "1px solid #ddd" }
+};
 
 export default Issues;
