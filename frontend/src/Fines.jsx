@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { API_URL } from "./config";
-// import api from "./api"; // 👈 USE THIS ONLY
+// import { API_URL } from "./config";
+import api from "./api"; // 👈 USE THIS ONLY
 
 function Fines() {
   const name = localStorage.getItem("name");
@@ -138,5 +138,70 @@ function Fines() {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    backgroundColor: "#F4F6F8",
+    minHeight: "100vh"
+  },
+
+  navbar: {
+    backgroundColor: "#1F2A44",
+    color: "white",
+    padding: "15px 25px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+
+  navTitle: {
+    margin: 0
+  },
+
+  welcome: {
+    fontWeight: "bold"
+  },
+
+  logoutBtn: {
+    backgroundColor: "#E74C3C",
+    color: "white",
+    border: "none",
+    padding: "8px 14px",
+    borderRadius: "5px",
+    cursor: "pointer"
+  },
+
+  layout: {
+    display: "flex"
+  },
+
+  content: {
+    flex: 1,
+    padding: "20px"
+  },
+
+  heading: {
+    marginBottom: "20px"
+  },
+
+  cards: {
+    display: "flex",
+    gap: "20px",
+    flexWrap: "wrap"
+  },
+
+  card: {
+    backgroundColor: "white",
+    padding: "20px",
+    borderRadius: "8px",
+    minWidth: "160px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
+  },
+
+  cardLabel: {
+    margin: "5px 0 0 0",
+    color: "#666"
+  }
+};
 
 export default Fines;

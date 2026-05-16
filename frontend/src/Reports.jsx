@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
+import api from "./api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-// import api from "./api";
+
 
 function Reports() {
   const name = localStorage.getItem("name");
@@ -96,5 +97,43 @@ function Reports() {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    backgroundColor: "#F4F6F8",
+    minHeight: "100vh"
+  },
+
+  navbar: {
+    backgroundColor: "#1F2A44",
+    color: "white",
+    padding: "15px 25px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+
+  navTitle: {
+    margin: 0
+  },
+
+  welcome: {
+    fontWeight: "bold"
+  },
+
+  layout: {
+    display: "flex"
+  },
+
+  content: {
+    flex: 1,
+    padding: "20px"
+  },
+
+  heading: {
+    marginBottom: "20px"
+  }
+};
+
 
 export default Reports;
