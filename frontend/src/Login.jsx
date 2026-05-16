@@ -1,31 +1,24 @@
 import { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "./api";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
   e.preventDefault();
   setLoading(true);
   setError("");
 
- try {
-  const res = await axios.post(
-    "https://library-management-system-z8fc.onrender.com/api/auth/login",
-    {
+  try {
+    const res = await api.post("/api/auth/login", {
       email: email.trim(),
       password: password.trim(),
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+    });
 
-  console.log("LOGIN RESPONSE:", res.data);
+    console.log("LOGIN RESPONSE:", res.data);
 
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("role", res.data.role);
