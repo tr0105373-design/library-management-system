@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { API_URL } from "./config";
-import api from "./api";
+// import api from "./api";
 
 function Dashboard() {
   const name = localStorage.getItem("name");
