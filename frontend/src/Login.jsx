@@ -6,36 +6,51 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      //  const res = await axios.post("http://localhost:5000/api/auth/login", {
-      const res = await axios.post("/api/auth/login", {
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
-      localStorage.setItem("name", res.data.name);
-    
-    const userRole = res.data.role;
-if (userRole === "student" || userRole === "faculty") {
-  window.location.href = "/student";
-} else if (userRole === "librarian") {
-  window.location.href = "/librarian";
-} else {
-  window.location.href = "/dashboard";
-}
-
-    } catch (err) {
-      setError("Invalid email or password!");
-    } finally {
-      setLoading(false);
+ try {
+  const res = await axios.post(
+    "http://localhost:5000/api/auth/login",
+    {
+      email: email.trim(),
+      password: password.trim()
+    },
+    {
+      headers: {
+        "Content-Type": "application/json"
+      }
     }
-  };
+  );
+
+  console.log("LOGIN RESPONSE:", res.data);
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("role", res.data.role);
+    localStorage.setItem("name", res.data.name);
+
+    const userRole = res.data.role;
+
+    if (userRole === "student" || userRole === "faculty") {
+      window.location.href = "/student";
+    } else if (userRole === "librarian") {
+      window.location.href = "/librarian";
+    } else {
+      window.location.href = "/dashboard";
+    }
+
+  } catch (err) {
+    console.log("LOGIN ERROR:", err.response?.data);
+
+    setError(
+      err.response?.data?.message || "Server error. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div style={styles.container}>
@@ -117,7 +132,7 @@ if (userRole === "student" || userRole === "faculty") {
 }
 
 const styles = {
-  container: {
+   container: {
     display: "flex",
     height: "100vh",
     fontFamily: "Arial, sans-serif",

@@ -12,7 +12,15 @@ function Fines() {
   const [payForm, setPayForm] = useState({ fine_id: "", paid_amount: "" });
   const [waiveForm, setWaiveForm] = useState({ fine_id: "", reason: "" });
 
-  const fetchFines = () => { axios.get(`${API_URL}/api/fines`, { headers }).then((res) => setFines(res.data)).catch((err) => console.log(err)); };
+  const fetchFines = () => { axios.get(`${API_URL}/api/fines`, { headers }) .then((res) => {
+  console.log("API RESPONSE:", res.data);
+
+  const data = Array.isArray(res.data)
+    ? res.data
+    : res.data?.fines || res.data?.data || [];
+
+  setFines(data);
+})   .catch((err) => console.log(err)); };
   useEffect(() => { fetchFines(); }, []);
 
   const handlePay = async (e) => {
@@ -27,6 +35,7 @@ function Fines() {
     catch { setMessage("❌ Error waiving fine!"); }
   };
 
+  const safeFines = Array.isArray(fines) ? fines : [];
   const pendingFines = fines.filter(f => f.status === "pending");
   const paidFines = fines.filter(f => f.status === "paid");
   const waivedFines = fines.filter(f => f.status === "waived");

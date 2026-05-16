@@ -16,16 +16,28 @@ function Dashboard() {
 
   useEffect(() => {
     const headers = { Authorization: `Bearer ${token}` };
+    // (`${API_URL}/api/books`, { headers }).then((res) => {
+    //   setBooks(res.data);
+    //   setStaaxios.getts((prev) => ({ ...prev, books: res.data.length }));
+    // });
     axios.get(`${API_URL}/api/books`, { headers }).then((res) => {
-      setBooks(res.data);
-      setStats((prev) => ({ ...prev, books: res.data.length }));
-    });
+  const data = Array.isArray(res.data) ? res.data : [];
+  setBooks(data);
+  setStats((prev) => ({ ...prev, books: data.length }));
+   });
+
     axios.get(`${API_URL}/api/members`, { headers }).then((res) =>
       setStats((prev) => ({ ...prev, members: res.data.length })));
+    // axios.get(`${API_URL}/api/issues`, { headers }).then((res) => {
+    //   setIssues(res.data);
+    //   setStats((prev) => ({ ...prev, issued: res.data.length }));
+    // });
     axios.get(`${API_URL}/api/issues`, { headers }).then((res) => {
-      setIssues(res.data);
-      setStats((prev) => ({ ...prev, issued: res.data.length }));
-    });
+  const data = Array.isArray(res.data) ? res.data : [];
+  setIssues(data);
+  setStats((prev) => ({ ...prev, issued: data.length }));
+   });
+
     axios.get(`${API_URL}/api/fines`, { headers }).then((res) =>
       setStats((prev) => ({ ...prev, fines: res.data.length })));
   }, []);
@@ -45,14 +57,27 @@ function Dashboard() {
   ];
   const COLORS = ["#4A90D9", "#E07B54"];
 
-  const booksData = books.slice(0, 5).map((b) => ({
-    name: b.title.length > 10 ? b.title.substring(0, 10) + "..." : b.title,
-    Available: b.available_copies,
-    Total: b.total_copies,
+  // const booksData = books.slice(0, 5).map((b) => ({
+  //   name: b.title.length > 10 ? b.title.substring(0, 10) + "..." : b.title,
+  //   Available: b.available_copies,
+  //   Total: b.total_copies,
+  // }));
+  const booksData = (Array.isArray(books) ? books : [])
+  .slice(0, 5)
+  .map((b) => ({
+    name: b.title?.length > 10 ? b.title.substring(0, 10) + "..." : b.title,
+    Available: b.available_copies || 0,
+    Total: b.total_copies || 0,
   }));
 
-  const recentIssues = issues.slice(-5).reverse();
-  const overdueBooks = issues.filter(i => i.status === "issued" && new Date(i.due_date) < new Date());
+  // const recentIssues = issues.slice(-5).reverse();
+  const recentIssues = (Array.isArray(issues) ? issues : [])
+  .slice(-5)
+  .reverse();
+  // const overdueBooks = issues.filter(i => i.status === "issued" && new Date(i.due_date) < new Date());
+  const overdueBooks = (Array.isArray(issues) ? issues : []).filter(
+  (i) => i.status === "issued" && new Date(i.due_date) < new Date()
+);
   const lowStockBooks = books.filter(b => b.available_copies <= 1);
 
   const menuItems = [

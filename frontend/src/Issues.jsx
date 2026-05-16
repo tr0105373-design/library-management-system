@@ -12,7 +12,12 @@ function Issues() {
   const [returnForm, setReturnForm] = useState({ issue_id: "", book_id: "" });
   const [message, setMessage] = useState("");
 
-  const fetchIssues = () => { axios.get(`${API_URL}/api/issues`, { headers }).then((res) => setIssues(res.data)); };
+  const fetchIssues = () => {
+  axios.get(`${API_URL}/api/issues`, { headers })
+    .then((res) => setIssues(res.data.issues || []))
+    .catch((err) => console.log(err));
+};
+
   useEffect(() => { fetchIssues(); }, []);
 
   const handleIssue = async (e) => {
@@ -66,15 +71,21 @@ function Issues() {
           </div>
 
           <div style={styles.tableBox}>
-            <h3 style={styles.formTitle}>📋 All Issues ({issues.length})</h3>
+            <h3 style={styles.formTitle}>📋 All Issues ({Array.isArray(issues) ? issues.length : 0})</h3>
             <table style={styles.table}>
               <thead><tr style={styles.thead}>
                 <th style={styles.th}>Issue ID</th><th style={styles.th}>Book</th><th style={styles.th}>Member</th>
                 <th style={styles.th}>Issue Date</th><th style={styles.th}>Due Date</th><th style={styles.th}>Return Date</th><th style={styles.th}>Status</th>
               </tr></thead>
               <tbody>
-                {issues.length === 0 ? <tr><td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>No issues yet!</td></tr> : (
-                  issues.map((i, idx) => (
+              {(Array.isArray(issues) ? issues : []).length === 0 ? 
+              <tr>
+               <td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>
+               No issues yet!
+              </td>
+              </tr> 
+              : (
+              (Array.isArray(issues) ? issues : []).map((i, idx) => (
                     <tr key={i.issue_id} style={{ backgroundColor: idx % 2 === 0 ? "#f9f9f9" : "white" }}>
                       <td style={styles.td}>{i.issue_id}</td><td style={styles.td}><strong>{i.title}</strong></td><td style={styles.td}>{i.name}</td>
                       <td style={styles.td}>{i.issue_date?.split("T")[0]}</td><td style={styles.td}>{i.due_date?.split("T")[0]}</td>

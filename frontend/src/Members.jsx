@@ -15,10 +15,13 @@ function Members() {
     name: "", email: "", password: "",
     role: "student", member_type: "student", max_books: 3
   });
-
+  
   const fetchMembers = () => {
-    axios.get(`${API_URL}/api/members`, { headers }).then((res) => setMembers(res.data)).catch((err) => console.log(err));
-  };
+  axios.get(`${API_URL}/api/members`, { headers })
+    .then((res) => setMembers(res.data.members || []))
+    .catch((err) => console.log(err));
+};
+  
 
   useEffect(() => { fetchMembers(); }, []);
 
@@ -38,8 +41,9 @@ function Members() {
   const handleSearch = async () => {
     if (!search) { fetchMembers(); return; }
     const res = await axios.get(`${API_URL}/api/members/search?query=${search}`, { headers });
-    setMembers(res.data);
-  };
+    setMembers(res.data.members || []);
+};
+  
 
   const handleDelete = async (memberId) => {
     if (window.confirm("Delete this member?")) {
@@ -102,7 +106,7 @@ function Members() {
               </tr></thead>
               <tbody>
                 {members.length === 0 ? <tr><td colSpan="7" style={{ textAlign: "center", padding: "20px", color: "#999" }}>No members found!</td></tr> : (
-                  members.map((m, i) => (
+                  (Array.isArray(members) ? members : []).map((m, i) => (
                     <tr key={m.member_id} style={{ backgroundColor: i % 2 === 0 ? "#f9f9f9" : "white" }}>
                       <td style={styles.td}>{m.member_id}</td>
                       <td style={styles.td}><strong>{m.name}</strong></td>

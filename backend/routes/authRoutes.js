@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 
 /* ---------------- LOGIN ---------------- */
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   console.log("LOGIN API HIT:", req.body);
 
@@ -13,53 +13,49 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ message: 'Email and password required' });
   }
 
-  db.query(
-    'SELECT * FROM users WHERE email = ?',
-    [email],
-    async (err, results) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Server error' });
-      }
+  try {
+    const result = await db.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
 
-      if (!results || results.length === 0) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-
-      const user = results[0];
-
-      let isMatch = false;
-
-      try {
-        // 🔥 SUPPORT BOTH TYPES OF PASSWORDS
-        if (user.password.startsWith('$2')) {
-          isMatch = await bcrypt.compare(password, user.password);
-        } else {
-          isMatch = password === user.password;
-        }
-      } catch (e) {
-        console.log(e);
-        return res.status(500).json({ message: 'Password error' });
-      }
-
-      if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-      }
-
-      const token = jwt.sign(
-        { user_id: user.user_id, role: user.role },
-        process.env.JWT_SECRET || "secretkey",
-        { expiresIn: '8h' }
-      );
-
-      return res.json({
-        token,
-        role: user.role,
-        name: user.name
-      });
+    if (result.rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-  );
+
+    const user = result.rows[0];
+
+    let isMatch = false;
+
+    // Support both hashed and plain passwords
+    if (user.password.startsWith('$2')) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = password === user.password;
+    }
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: '8h' }
+    );
+
+    return res.json({
+      token,
+      role: user.role,
+      name: user.name
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
+
 
 /* ---------------- REGISTER ---------------- */
 router.post('/register', async (req, res) => {
@@ -72,24 +68,19 @@ router.post('/register', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.query(
-      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, role || 'student'],
-      (err, result) => {
-        if (err) {
-          console.log(err);
-          return res.status(500).json({ message: 'Email already exists' });
-        }
-
-        return res.json({
-          message: 'User registered successfully',
-          user_id: result.insertId
-        });
-      }
+    const result = await db.query(
+      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id',
+      [name, email, hashedPassword, role || 'student']
     );
+
+    return res.json({
+      message: 'User registered successfully',
+      user_id: result.rows[0].user_id
+    });
+
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Email already exists' });
   }
 });
 

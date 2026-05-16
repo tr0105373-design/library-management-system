@@ -26,6 +26,8 @@ function Reports() {
     axios.get(`${API_URL}/api/reports/most-borrowed`, { headers }).then(res => setMostBorrowed(res.data));
   }, []);
 
+
+  const safeFines = Array.isArray(fines) ? fines : [];
   const collectedFines = fines.filter(f => f.status === "paid").reduce((sum, f) => sum + parseFloat(f.paid_amount || 0), 0);
   const overdueIssues = issues.filter(i => i.status === "issued" && new Date(i.due_date) < new Date());
 
