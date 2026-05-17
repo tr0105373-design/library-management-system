@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const db = require('./config/db');
 const path = require("path");
 
 dotenv.config();
@@ -11,31 +10,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ---------------- API ROUTES ---------------- */
-const authRoutes = require('./routes/authRoutes');
-const bookRoutes = require('./routes/bookRoutes');
-const memberRoutes = require('./routes/memberRoutes');
-const issueRoutes = require('./routes/issueRoutes');
-const fineRoutes = require('./routes/fineRoutes');
-const reportRoutes = require('./routes/reportRoutes');
+/* ---------------- ROUTES ---------------- */
 
-app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/members', memberRoutes);
-app.use('/api/issues', issueRoutes);
-app.use('/api/fines', fineRoutes);
-app.use('/api/reports', reportRoutes);
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/books", require("./routes/bookRoutes"));
+app.use("/api/members", require("./routes/memberRoutes"));
+app.use("/api/issues", require("./routes/issueRoutes"));
+app.use("/api/fines", require("./routes/fineRoutes"));
+app.use("/api/reports", require("./routes/reportRoutes"));
 
-/* ---------------- FRONTEND (VITE BUILD) ---------------- */
+/* ---------------- FRONTEND ---------------- */
 
-// ✅ IMPORTANT: correct path for Render structure
 const frontendPath = path.join(__dirname, '../frontend/dist');
 
-// serve static files
 app.use(express.static(frontendPath));
 
-// fallback route for React/Vite SPA
-app.use((req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
