@@ -12,6 +12,9 @@ function Dashboard() {
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  
+  console.log("API_URL:", API_URL);
+  console.log("TOKEN:", token);
 
   const [stats, setStats] = useState({
     books: 0,
@@ -34,7 +37,8 @@ function Dashboard() {
 
         console.log("BOOKS RESPONSE:", res.data);
 
-        const data = res.data?.books || res.data || [];
+        // const data = res.data?.books || res.data || [];
+        const data = Array.isArray(res.data) ? res.data : [];
 
         const safeData = Array.isArray(data) ? data : [];
 
