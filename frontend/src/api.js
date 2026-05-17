@@ -23,4 +23,6 @@ api.interceptors.request.use(
   }
 );
 
+console.log("TOKEN IN INTERCEPTOR:", token);
+
 export default api;
