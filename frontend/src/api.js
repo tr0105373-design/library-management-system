@@ -7,22 +7,18 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
+// request interceptor
+api.interceptors.request.use((config) => {
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  const token = localStorage.getItem("token"); // ✅ yahan define karo
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+  console.log("TOKEN FROM LOCALSTORAGE:", token);
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
 
-console.log("TOKEN IN INTERCEPTOR:", token);
+  return config;
+});
 
 export default api;
