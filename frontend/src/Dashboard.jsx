@@ -219,5 +219,24 @@ function Dashboard() {
     </div>
   );
 }
+const styles = {
+  container: { fontFamily: "Arial", minHeight: "100vh", backgroundColor: "#F4F6F9" },
+  navbar: { backgroundColor: "#2C3E50", padding: "14px 30px", display: "flex", justifyContent: "space-between", alignItems: "center" },
+  navTitle: { color: "white", margin: 0, fontSize: "20px" },
+  welcome: { color: "#BDC3C7", fontSize: "14px" },
+  logoutBtn: { padding: "7px 16px", backgroundColor: "#E74C3C", color: "white", border: "none", borderRadius: "6px", cursor: "pointer" },
+  layout: { display: "flex" },
+  sidebar: { width: "210px", backgroundColor: "#2C3E50", minHeight: "100vh", padding: "15px 0", display: "flex", flexDirection: "column" },
+  menuBtn: { padding: "13px 20px", color: "#BDC3C7", border: "none", textAlign: "left", cursor: "pointer" },
+  content: { flex: 1, padding: "25px" },
+  heading: { color: "#2C3E50" },
+  alertBox: { padding: "12px", backgroundColor: "#f8d7da", color: "#721c24", marginBottom: "10px" },
+  warningBox: { padding: "12px", backgroundColor: "#fff3cd", color: "#856404", marginBottom: "10px" },
+  cards: { display: "flex", gap: "15px", flexWrap: "wrap" },
+  card: { padding: "20px", backgroundColor: "white", borderRadius: "10px", minWidth: "120px", textAlign: "center" },
+  chartsRow: { display: "flex", gap: "20px", flexWrap: "wrap" },
+  chartBox: { flex: 1, backgroundColor: "white", padding: "20px", borderRadius: "10px" },
+  chartBoxFull: { backgroundColor: "white", padding: "20px", marginTop: "20px", borderRadius: "10px" },
+};
 
 export default Dashboard;
