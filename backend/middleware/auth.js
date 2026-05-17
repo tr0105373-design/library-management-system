@@ -1,25 +1,31 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function(req,res,next){
+module.exports = function(req, res, next) {
 
-const authHeader = req.headers.authorization;
+  console.log("👉 AUTH MIDDLEWARE HIT");
 
-if(!authHeader){
-return res.status(401).json({message:"No token"});
-}
+  const authHeader = req.headers.authorization;
+  console.log("👉 AUTH HEADER:", authHeader);
 
-const token = authHeader.split(" ")[1];
+  if (!authHeader) {
+    console.log("❌ NO TOKEN FOUND");
+    return res.status(401).json({ message: "No token" });
+  }
 
-try{
+  const token = authHeader.split(" ")[1];
+  console.log("👉 TOKEN EXTRACTED:", token);
 
-const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-req.user = decoded;
+    console.log("✅ TOKEN VERIFIED:", decoded);
 
-next();
+    req.user = decoded;
+    next();
 
-}catch(err){
-return res.status(401).json({message:"Invalid token"});
-}
+  } catch (err) {
+    console.log("❌ TOKEN INVALID:", err.message);
 
+    return res.status(401).json({ message: "Invalid token" });
+  }
 };
