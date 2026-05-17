@@ -25,7 +25,8 @@ function Dashboard() {
 
   /* ================= FIXED BOOKS FETCH ================= */
   useEffect(() => {
-    console.log("API_URL:", API_URL);
+  console.log("API_URL:", import.meta.env.VITE_API_URL);
+// }, []);
     const headers = { Authorization: `Bearer ${token}` };
 
     axios.get(`${API_URL}/api/books`, { headers })
