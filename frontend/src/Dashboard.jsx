@@ -15,23 +15,34 @@ function Dashboard() {
   const [books, setBooks] = useState([]);
   const [issues, setIssues] = useState([]);
   
+//   useEffect(() => {
+//   const headers = { Authorization: `Bearer ${token}` };
+
+//   axios.get(`${API_URL}/api/books`, { headers })
+//     .then((res) => {
+//       const data = Array.isArray(res.data) ? res.data : [];
+
+//       console.log("BOOKS DATA:", data);
+
+//       setBooks(data);
+
+//       setStats((prev) => ({
+//         ...prev,
+//         books: data.length
+//       }));
+//     })
+//     .catch((err) => console.log(err));
+
+// }, []);
   useEffect(() => {
   const headers = { Authorization: `Bearer ${token}` };
 
   axios.get(`${API_URL}/api/books`, { headers })
-    .then((res) => {
-      const data = Array.isArray(res.data) ? res.data : [];
-
-      console.log("BOOKS DATA:", data);
-
-      setBooks(data);
-
-      setStats((prev) => ({
-        ...prev,
-        books: data.length
-      }));
+    .then(res => {
+      console.log("FULL RESPONSE:", res);
+      console.log("DATA:", res.data);
     })
-    .catch((err) => console.log(err));
+    .catch(err => console.log("ERROR:", err.response));
 
 }, []);
 
