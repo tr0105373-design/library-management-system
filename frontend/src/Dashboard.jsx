@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
 import { API_URL } from "./config";
-const API_URL = import.meta.env.VITE_API_URL;
+
 
 function Dashboard() {
   const name = localStorage.getItem("name");
