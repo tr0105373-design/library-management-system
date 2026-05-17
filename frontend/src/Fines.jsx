@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "./Sidebar";
 import { API_URL } from "./config";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Fines() {
 const token = localStorage.getItem("token");

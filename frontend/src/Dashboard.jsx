@@ -6,13 +6,14 @@ import {
   PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
 import { API_URL } from "./config";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Dashboard() {
   const name = localStorage.getItem("name");
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  
+
   console.log("API_URL:", API_URL);
   console.log("TOKEN:", token);
 
