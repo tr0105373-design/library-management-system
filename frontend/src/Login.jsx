@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import axios from "axios";
 import api from "./api";
 
 function Login() {
@@ -246,6 +245,7 @@ const styles = {
     outline: "none",
     fontSize: "14px",
     backgroundColor: "#f9f9f9",
+    color: "#000",
   },
   btn: {
     width: "100%",
