@@ -14,34 +14,56 @@ function Dashboard() {
   const [stats, setStats] = useState({ books: 0, members: 0, issued: 0, fines: 0 });
   const [books, setBooks] = useState([]);
   const [issues, setIssues] = useState([]);
-
+  
   useEffect(() => {
-    const headers = { Authorization: `Bearer ${token}` };
-    // (`${API_URL}/api/books`, { headers }).then((res) => {
-    //   setBooks(res.data);
-    //   setStaaxios.getts((prev) => ({ ...prev, books: res.data.length }));
-    // });
-    axios.get(`${API_URL}/api/books`, { headers }).then((res) => {
-  const data = Array.isArray(res.data) ? res.data : [];
-  setBooks(data);
-  setStats((prev) => ({ ...prev, books: data.length }));
-   });
+  const headers = { Authorization: `Bearer ${token}` };
 
-    axios.get(`${API_URL}/api/members`, { headers }).then((res) =>
-      setStats((prev) => ({ ...prev, members: res.data.length })));
-    // axios.get(`${API_URL}/api/issues`, { headers }).then((res) => {
-    //   setIssues(res.data);
-    //   setStats((prev) => ({ ...prev, issued: res.data.length }));
-    // });
-    axios.get(`${API_URL}/api/issues`, { headers }).then((res) => {
-  const data = Array.isArray(res.data) ? res.data : [];
-  setIssues(data);
-  setStats((prev) => ({ ...prev, issued: data.length }));
-   });
+  axios.get(`${API_URL}/api/books`, { headers })
+    .then((res) => {
+      const data = Array.isArray(res.data) ? res.data : [];
 
-    axios.get(`${API_URL}/api/fines`, { headers }).then((res) =>
-      setStats((prev) => ({ ...prev, fines: res.data.length })));
-  }, []);
+      console.log("BOOKS DATA:", data);
+
+      setBooks(data);
+
+      setStats((prev) => ({
+        ...prev,
+        books: data.length
+      }));
+    })
+    .catch((err) => console.log(err));
+
+}, []);
+
+    useEffect(() => {
+  const headers = { Authorization: `Bearer ${token}` };
+
+  // 📚 MEMBERS
+  axios.get(`${API_URL}/api/members`, { headers })
+    .then((res) => {
+      const data = Array.isArray(res.data) ? res.data : [];
+      setStats((prev) => ({ ...prev, members: data.length }));
+    })
+    .catch((err) => console.log(err));
+
+  // 📖 ISSUES
+  axios.get(`${API_URL}/api/issues`, { headers })
+    .then((res) => {
+      const data = Array.isArray(res.data) ? res.data : [];
+      setIssues(data);
+      setStats((prev) => ({ ...prev, issued: data.length }));
+    })
+    .catch((err) => console.log(err));
+
+  // 💰 FINES
+  axios.get(`${API_URL}/api/fines`, { headers })
+    .then((res) => {
+      const data = Array.isArray(res.data) ? res.data : [];
+      setStats((prev) => ({ ...prev, fines: data.length }));
+    })
+    .catch((err) => console.log(err));
+
+}, []);
 
   const handleLogout = () => { localStorage.clear(); navigate("/"); };
 
