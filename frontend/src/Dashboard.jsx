@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
-// import { API_URL } from "./config";
-import api from "./api";   
 
+import api from "./api";
 
 function Dashboard() {
+
   const name = localStorage.getItem("name");
   const role = localStorage.getItem("role");
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
-
-  console.log("API_URL:", API_URL);
-  console.log("TOKEN:", token);
 
   const [stats, setStats] = useState({
     books: 0,
@@ -28,60 +23,87 @@ function Dashboard() {
   const [books, setBooks] = useState([]);
   const [issues, setIssues] = useState([]);
 
-  /* ================= FIXED BOOKS FETCH ================= */
-  useEffect(() => {
-  console.log("API_URL:", import.meta.env.VITE_API_URL);
-// }, []);
-    const headers = { Authorization: `Bearer ${token}` };
+  /* ================= BOOKS ================= */
 
-    axios.get(`${API_URL}/api/books`, { headers })
+  useEffect(() => {
+
+    api.get("/api/books")
       .then(res => {
 
-        console.log("BOOKS RESPONSE:", res.data);
+        console.log("BOOKS:", res.data);
 
-        // const data = res.data?.books || res.data || [];
         const data = Array.isArray(res.data) ? res.data : [];
 
-        const safeData = Array.isArray(data) ? data : [];
-
-        setBooks(safeData);
+        setBooks(data);
 
         setStats(prev => ({
           ...prev,
-          books: safeData.length
+          books: data.length
         }));
+
       })
-      .catch(err => console.log("BOOKS ERROR:", err));
+      .catch(err => console.log("BOOK ERROR:", err));
 
-  }, [token]);
+  }, []);
 
-  /* ================= OTHER STATS ================= */
+  /* ================= MEMBERS ================= */
+
   useEffect(() => {
-    const headers = { Authorization: `Bearer ${token}` };
 
-    axios.get(`${API_URL}/api/members`, { headers })
+    api.get("/api/members")
       .then(res => {
+
         const data = Array.isArray(res.data) ? res.data : [];
-        setStats(prev => ({ ...prev, members: data.length }));
+
+        setStats(prev => ({
+          ...prev,
+          members: data.length
+        }));
+
       })
       .catch(err => console.log(err));
 
-    axios.get(`${API_URL}/api/issues`, { headers })
+  }, []);
+
+  /* ================= ISSUES ================= */
+
+  useEffect(() => {
+
+    api.get("/api/issues")
       .then(res => {
+
         const data = Array.isArray(res.data) ? res.data : [];
+
         setIssues(data);
-        setStats(prev => ({ ...prev, issued: data.length }));
+
+        setStats(prev => ({
+          ...prev,
+          issued: data.length
+        }));
+
       })
       .catch(err => console.log(err));
 
-    axios.get(`${API_URL}/api/fines`, { headers })
+  }, []);
+
+  /* ================= FINES ================= */
+
+  useEffect(() => {
+
+    api.get("/api/fines")
       .then(res => {
+
         const data = Array.isArray(res.data) ? res.data : [];
-        setStats(prev => ({ ...prev, fines: data.length }));
+
+        setStats(prev => ({
+          ...prev,
+          fines: data.length
+        }));
+
       })
       .catch(err => console.log(err));
 
-  }, [token]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -102,7 +124,7 @@ function Dashboard() {
 
   const COLORS = ["#4A90D9", "#E07B54"];
 
-  const booksData = (Array.isArray(books) ? books : [])
+  const booksData = books
     .slice(0, 5)
     .map(b => ({
       name: b.title?.length > 10 ? b.title.substring(0, 10) + "..." : b.title,
@@ -110,16 +132,17 @@ function Dashboard() {
       Total: b.total_copies || 0,
     }));
 
-  const recentIssues = (Array.isArray(issues) ? issues : [])
+  const recentIssues = issues
     .slice(-5)
     .reverse();
 
-  const overdueBooks = (Array.isArray(issues) ? issues : []).filter(
+  const overdueBooks = issues.filter(
     i => i.status === "issued" && new Date(i.due_date) < new Date()
   );
 
-  const lowStockBooks = (Array.isArray(books) ? books : [])
-    .filter(b => b.available_copies <= 1);
+  const lowStockBooks = books.filter(
+    b => b.available_copies <= 1
+  );
 
   const menuItems = [
     { path: "/dashboard", icon: "🏠", label: "Dashboard" },
@@ -132,8 +155,10 @@ function Dashboard() {
 
   return (
     <div style={styles.container}>
+
       <div style={styles.navbar}>
         <h2 style={styles.navTitle}>📚 Library Management System</h2>
+
         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
           <span style={styles.welcome}>👤 {name} ({role})</span>
           <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
@@ -141,23 +166,36 @@ function Dashboard() {
       </div>
 
       <div style={styles.layout}>
+
         <div style={styles.sidebar}>
+
           {menuItems.map(item => (
+
             <button
               key={item.path}
               style={{
                 ...styles.menuBtn,
-                backgroundColor: window.location.pathname === item.path ? "rgba(255,255,255,0.15)" : "transparent",
-                borderLeft: window.location.pathname === item.path ? "4px solid #4A90D9" : "4px solid transparent",
+                backgroundColor:
+                  window.location.pathname === item.path
+                    ? "rgba(255,255,255,0.15)"
+                    : "transparent",
+                borderLeft:
+                  window.location.pathname === item.path
+                    ? "4px solid #4A90D9"
+                    : "4px solid transparent",
               }}
               onClick={() => navigate(item.path)}
             >
               {item.icon} {item.label}
+
             </button>
+
           ))}
+
         </div>
 
         <div style={styles.content}>
+
           <h3 style={styles.heading}>📊 Dashboard Overview</h3>
 
           {overdueBooks.length > 0 && (
@@ -173,53 +211,97 @@ function Dashboard() {
           )}
 
           <div style={styles.cards}>
-            <div style={styles.card}><h1>{stats.books}</h1><p>📚 Total Books</p></div>
-            <div style={styles.card}><h1>{stats.members}</h1><p>👥 Members</p></div>
-            <div style={styles.card}><h1>{stats.issued}</h1><p>📋 Issued</p></div>
-            <div style={styles.card}><h1>{stats.fines}</h1><p>💰 Fines</p></div>
+
+            <div style={styles.card}>
+              <h1>{stats.books}</h1>
+              <p>📚 Total Books</p>
+            </div>
+
+            <div style={styles.card}>
+              <h1>{stats.members}</h1>
+              <p>👥 Members</p>
+            </div>
+
+            <div style={styles.card}>
+              <h1>{stats.issued}</h1>
+              <p>📋 Issued</p>
+            </div>
+
+            <div style={styles.card}>
+              <h1>{stats.fines}</h1>
+              <p>💰 Fines</p>
+            </div>
+
           </div>
 
           <div style={styles.chartsRow}>
+
             <div style={styles.chartBox}>
+
               <h4>📊 Overview</h4>
+
               <ResponsiveContainer width="100%" height={220}>
+
                 <BarChart data={barData}>
+
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
+
                   <Bar dataKey="value" fill="#4A90D9" />
+
                 </BarChart>
+
               </ResponsiveContainer>
+
             </div>
 
             <div style={styles.chartBox}>
+
               <h4>🥧 Books Status</h4>
+
               <ResponsiveContainer width="100%" height={220}>
+
                 <PieChart>
+
                   <Pie data={pieData} dataKey="value" label>
+
                     {pieData.map((_, i) => (
                       <Cell key={i} fill={COLORS[i]} />
                     ))}
+
                   </Pie>
+
                 </PieChart>
+
               </ResponsiveContainer>
+
             </div>
+
           </div>
 
           <div style={styles.chartBoxFull}>
+
             <h4>📈 Top Books</h4>
+
             <ResponsiveContainer width="100%" height={220}>
+
               <BarChart data={booksData}>
+
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
+
                 <Bar dataKey="Total" fill="#4A90D9" />
                 <Bar dataKey="Available" fill="#5BAD72" />
+
               </BarChart>
+
             </ResponsiveContainer>
+
           </div>
 
         </div>
