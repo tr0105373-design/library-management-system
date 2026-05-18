@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import { API_URL } from "./config";
+// import { API_URL } from "./config";
 import api from "./api";
 
 

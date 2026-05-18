@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 // import { API_URL } from "./config";
 import api from "./api";   // ✅ IMPORTANT FIX: use central axios instance
-const API_URL = import.meta.env.VITE_API_URL;
+
 
 function Members() {
   const name = localStorage.getItem("name");

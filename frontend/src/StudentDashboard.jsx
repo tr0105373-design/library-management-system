@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "./config";
+// import { API_URL } from "./config";
+import api from "./api";   
 
 function StudentDashboard() {
   const token = localStorage.getItem("token");

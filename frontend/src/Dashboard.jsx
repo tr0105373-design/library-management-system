@@ -5,7 +5,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
-import { API_URL } from "./config";
+// import { API_URL } from "./config";
+import api from "./api";   
 
 
 function Dashboard() {
