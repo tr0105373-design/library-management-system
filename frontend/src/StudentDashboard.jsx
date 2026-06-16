@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // import { API_URL } from "./config";
 import api from "./api";   
@@ -20,23 +20,29 @@ function StudentDashboard() {
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchAll = () => {
-    axios.get("http://localhost:5000/api/issues", { headers }).then(res => setIssues(res.data));
-    axios.get("http://localhost:5000/api/fines", { headers }).then(res => setFines(res.data));
-    axios.get("http://localhost:5000/api/books", { headers }).then(res => setBooks(res.data));
-  };
+  api.get("/issues", { headers })
+    .then(res => setIssues(Array.isArray(res.data) ? res.data : []))
+    .catch(() => setIssues([]));
+  api.get("/fines", { headers })
+    .then(res => setFines(Array.isArray(res.data) ? res.data : []))
+    .catch(() => setFines([]));
+  api.get("/books", { headers })
+    .then(res => setBooks(Array.isArray(res.data) ? res.data : []))
+    .catch(() => setBooks([]));
+};
+  
 
   useEffect(() => { fetchAll(); }, []);
-
   const handleSearch = async () => {
     if (!search) { fetchAll(); return; }
-    const res = await axios.get(`http://localhost:5000/api/books/search?query=${search}`, { headers });
+    const res = await api.get(`/books/search?query=${search}`, { headers });
     setBooks(res.data);
   };
 
   const handleRenew = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/issues/renew", { issue_id: renewId }, { headers });
+      const res = await api.post("/issues/renew", { issue_id: renewId }, { headers });
       setRenewMsg("✅ " + res.data.message);
       fetchAll();
       setRenewId("");
