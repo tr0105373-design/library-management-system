@@ -82,7 +82,18 @@ router.post('/register', async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: 'Email already exists' });
+
+    // Postgres unique_violation error code is '23505' — sirf isi case mein
+    // "Email already exists" bolna chahiye. Baaki har error ka asli reason
+    // bhejna chahiye taaki debugging aasan rahe.
+    if (err.code === '23505') {
+      return res.status(409).json({ message: 'Email already exists' });
+    }
+
+    return res.status(500).json({
+      message: 'Error registering user',
+      detail: err.message
+    });
   }
 });
 
