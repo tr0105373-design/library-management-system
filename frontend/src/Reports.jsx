@@ -17,12 +17,33 @@ const [issues, setIssues] = useState([]);
 const [fines, setFines] = useState([]);
 const [mostBorrowed, setMostBorrowed] = useState([]);
 
+const extractArray = (resData, key) => {
+  if (Array.isArray(resData)) return resData;
+  if (resData && Array.isArray(resData[key])) return resData[key];
+  if (resData && Array.isArray(resData.data)) return resData.data;
+  return [];
+};
+
 useEffect(() => {
-  api.get("/books", { headers }).then(res => setBooks(Array.isArray(res.data) ? res.data : []));
-  api.get("/members", { headers }).then(res => setMembers(Array.isArray(res.data) ? res.data : []));
-  api.get("/issues", { headers }).then(res => setIssues(Array.isArray(res.data) ? res.data : []));
-  api.get("/fines", { headers }).then(res => setFines(Array.isArray(res.data) ? res.data : []));
-  api.get("/reports/most-borrowed", { headers }).then(res => setMostBorrowed(Array.isArray(res.data) ? res.data : []));
+  api.get("/api/books", { headers })
+    .then(res => setBooks(extractArray(res.data, "books")))
+    .catch(err => { console.log("Books error:", err); setBooks([]); });
+
+  api.get("/api/members", { headers })
+    .then(res => setMembers(extractArray(res.data, "members")))
+    .catch(err => { console.log("Members error:", err); setMembers([]); });
+
+  api.get("/api/issues", { headers })
+    .then(res => setIssues(extractArray(res.data, "issues")))
+    .catch(err => { console.log("Issues error:", err); setIssues([]); });
+
+  api.get("/api/fines", { headers })
+    .then(res => setFines(extractArray(res.data, "fines")))
+    .catch(err => { console.log("Fines error:", err); setFines([]); });
+
+  api.get("/api/reports/most-borrowed", { headers })
+    .then(res => setMostBorrowed(extractArray(res.data, "books")))
+    .catch(err => { console.log("Most-borrowed error:", err); setMostBorrowed([]); });
 }, []);
 
 const collectedFines = fines.filter(f => f.status === "paid").reduce((sum, f) => sum + parseFloat(f.paid_amount || 0), 0);
