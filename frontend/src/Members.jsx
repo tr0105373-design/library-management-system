@@ -19,13 +19,20 @@ function Members() {
     max_books: 3
   });
 
-  // ✅ FIXED: no manual axios + headers
+  const extractArray = (resData, key) => {
+    if (Array.isArray(resData)) return resData;
+    if (resData && Array.isArray(resData[key])) return resData[key];
+    if (resData && Array.isArray(resData.data)) return resData.data;
+    return [];
+  };
+
   const fetchMembers = async () => {
     try {
       const res = await api.get("/api/members");
-      setMembers(res.data.members || []);
+      setMembers(extractArray(res.data, "members"));
     } catch (err) {
       console.log(err);
+      setMembers([]);
     }
   };
 
@@ -63,7 +70,8 @@ function Members() {
 
     } catch (err) {
       console.log(err);
-      setMessage("❌ Error! Email already exists.");
+      const backendMsg = err.response?.data?.message;
+      setMessage("❌ " + (backendMsg || "Error adding member!"));
     }
   };
 
@@ -72,9 +80,10 @@ function Members() {
       if (!search) return fetchMembers();
 
       const res = await api.get(`/api/members/search?query=${search}`);
-      setMembers(res.data.members || []);
+      setMembers(extractArray(res.data, "members"));
     } catch (err) {
       console.log(err);
+      setMembers([]);
     }
   };
 
