@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import api from "./api";   // ✅ FIX: use central axios instance
-// import { API_URL } from "./config";
+import api from "./api";
 
 function Issues() {
   const name = localStorage.getItem("name");
@@ -11,13 +10,20 @@ function Issues() {
   const [returnForm, setReturnForm] = useState({ issue_id: "", book_id: "" });
   const [message, setMessage] = useState("");
 
-  // ✅ FIXED: no manual axios + headers
+  const extractArray = (resData, key) => {
+    if (Array.isArray(resData)) return resData;
+    if (resData && Array.isArray(resData[key])) return resData[key];
+    if (resData && Array.isArray(resData.data)) return resData.data;
+    return [];
+  };
+
   const fetchIssues = async () => {
     try {
       const res = await api.get("/api/issues");
-      setIssues(res.data.issues || []);
+      setIssues(extractArray(res.data, "issues"));
     } catch (err) {
       console.log(err);
+      setIssues([]);
     }
   };
 
@@ -46,7 +52,7 @@ function Issues() {
       setReturnForm({ issue_id: "", book_id: "" });
     } catch (err) {
       console.log(err);
-      setMessage("❌ Error returning!");
+      setMessage("❌ " + (err.response?.data?.message || "Error returning!"));
     }
   };
 
@@ -90,7 +96,6 @@ function Issues() {
           )}
 
           <div style={styles.formsRow}>
-            {/* ISSUE */}
             <div style={styles.formBox}>
               <h3 style={styles.formTitle}>📤 Issue Book</h3>
 
@@ -125,7 +130,6 @@ function Issues() {
               </form>
             </div>
 
-            {/* RETURN */}
             <div style={styles.formBox}>
               <h3 style={styles.formTitle}>📥 Return Book</h3>
 
@@ -161,7 +165,6 @@ function Issues() {
             </div>
           </div>
 
-          {/* TABLE */}
           <div style={styles.tableBox}>
             <h3 style={styles.formTitle}>
               📋 All Issues ({issues.length})
@@ -226,7 +229,6 @@ function Issues() {
 
 const styles = {
   container: { display: "flex", flexDirection: "column", height: "100vh" },
-
   navbar: {
     display: "flex",
     justifyContent: "space-between",
@@ -235,11 +237,8 @@ const styles = {
     color: "white",
     padding: "10px 20px"
   },
-
   navTitle: { margin: 0 },
-
   welcome: { fontWeight: "bold" },
-
   logoutBtn: {
     backgroundColor: "#ef4444",
     color: "white",
@@ -248,34 +247,24 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer"
   },
-
   layout: { display: "flex", flex: 1 },
-
   content: { flex: 1, padding: "20px" },
-
   heading: { marginBottom: "20px" },
-
   formsRow: { display: "flex", gap: "20px", flexWrap: "wrap" },
-
   formBox: {
     backgroundColor: "#f9fafb",
     padding: "20px",
     borderRadius: "8px",
     minWidth: "250px"
   },
-
   formTitle: { marginBottom: "10px" },
-
   formGroup: { display: "flex", flexDirection: "column", marginBottom: "10px" },
-
   label: { marginBottom: "4px" },
-
   input: {
     padding: "6px",
     border: "1px solid #ccc",
     borderRadius: "4px"
   },
-
   issueBtn: {
     marginTop: "10px",
     padding: "8px 12px",
@@ -285,7 +274,6 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer"
   },
-
   returnBtn: {
     marginTop: "10px",
     padding: "8px 12px",
@@ -295,15 +283,10 @@ const styles = {
     borderRadius: "4px",
     cursor: "pointer"
   },
-
   tableBox: { marginTop: "20px" },
-
   table: { width: "100%", borderCollapse: "collapse" },
-
   thead: { backgroundColor: "#e5e7eb" },
-
   th: { padding: "10px", border: "1px solid #ddd" },
-
   td: { padding: "10px", border: "1px solid #ddd" }
 };
 

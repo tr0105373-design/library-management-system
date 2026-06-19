@@ -3,38 +3,48 @@ const router = express.Router();
 const db = require('../config/db');
 const auth = require('../middleware/auth');
 
-router.get('/', auth, (req, res) => {
-  db.query(
-    'SELECT f.*, u.name FROM fines f JOIN book_issues bi ON f.issue_id = bi.issue_id JOIN members m ON bi.member_id = m.member_id JOIN users u ON m.user_id = u.user_id',
-    (err, results) => {
-      if (err) return res.status(500).json({ message: 'Server error' });
-      res.json(results);
-    }
-  );
+router.get('/', auth, async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT f.*, u.name
+       FROM fines f
+       JOIN book_issues bi ON f.issue_id = bi.issue_id
+       JOIN members m ON bi.member_id = m.member_id
+       JOIN users u ON m.user_id = u.user_id`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-router.post('/pay', auth, (req, res) => {
+router.post('/pay', auth, async (req, res) => {
   const { fine_id, paid_amount } = req.body;
-  db.query(
-    'UPDATE fines SET paid_amount = ?, status = "paid", paid_date = CURDATE() WHERE fine_id = ?',
-    [paid_amount, fine_id],
-    (err) => {
-      if (err) return res.status(500).json({ message: 'Error updating fine' });
-      res.json({ message: 'Fine paid successfully!' });
-    }
-  );
+  try {
+    await db.query(
+      "UPDATE fines SET paid_amount = $1, status = 'paid', paid_date = CURRENT_DATE WHERE fine_id = $2",
+      [paid_amount, fine_id]
+    );
+    res.json({ message: 'Fine paid successfully!' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Error updating fine' });
+  }
 });
 
-router.post('/waive', auth, (req, res) => {
+router.post('/waive', auth, async (req, res) => {
   const { fine_id, reason } = req.body;
-  db.query(
-    'UPDATE fines SET status = "waived", paid_date = CURDATE() WHERE fine_id = ?',
-    [fine_id],
-    (err) => {
-      if (err) return res.status(500).json({ message: 'Error waiving fine' });
-      res.json({ message: 'Fine waived successfully!' });
-    }
-  );
+  try {
+    await db.query(
+      "UPDATE fines SET status = 'waived', paid_date = CURRENT_DATE WHERE fine_id = $1",
+      [fine_id]
+    );
+    res.json({ message: 'Fine waived successfully!' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Error waiving fine' });
+  }
 });
 
 module.exports = router;

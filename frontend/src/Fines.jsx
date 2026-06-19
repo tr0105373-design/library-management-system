@@ -12,10 +12,17 @@ const [message, setMessage] = useState("");
 const [payForm, setPayForm] = useState({ fine_id: "", paid_amount: "" });
 const [waiveForm, setWaiveForm] = useState({ fine_id: "", reason: "" });
 
+const extractArray = (resData, key) => {
+  if (Array.isArray(resData)) return resData;
+  if (resData && Array.isArray(resData[key])) return resData[key];
+  if (resData && Array.isArray(resData.data)) return resData.data;
+  return [];
+};
+
 const fetchFines = () => {
-  api.get("/fines", { headers })
-    .then((res) => setFines(Array.isArray(res.data) ? res.data : []))
-    .catch((err) => console.log(err));
+  api.get("/api/fines", { headers })
+    .then((res) => setFines(extractArray(res.data, "fines")))
+    .catch((err) => { console.log(err); setFines([]); });
 };
 
 useEffect(() => { fetchFines(); }, []);
@@ -23,24 +30,26 @@ useEffect(() => { fetchFines(); }, []);
 const handlePay = async (e) => {
   e.preventDefault();
   try {
-    await api.post("/fines/pay", payForm, { headers });
+    await api.post("/api/fines/pay", payForm, { headers });
     setMessage("✅ Fine paid!");
     fetchFines();
     setPayForm({ fine_id: "", paid_amount: "" });
-  } catch {
-    setMessage("❌ Error paying fine!");
+  } catch (err) {
+    console.log(err);
+    setMessage("❌ " + (err.response?.data?.message || "Error paying fine!"));
   }
 };
 
 const handleWaive = async (e) => {
   e.preventDefault();
   try {
-    await api.post("/fines/waive", waiveForm, { headers });
+    await api.post("/api/fines/waive", waiveForm, { headers });
     setMessage("✅ Fine waived!");
     fetchFines();
     setWaiveForm({ fine_id: "", reason: "" });
-  } catch {
-    setMessage("❌ Error waiving fine!");
+  } catch (err) {
+    console.log(err);
+    setMessage("❌ " + (err.response?.data?.message || "Error waiving fine!"));
   }
 };
 
