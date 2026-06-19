@@ -19,30 +19,42 @@ function StudentDashboard() {
 
   const headers = { Authorization: `Bearer ${token}` };
 
+  const extractArray = (resData, key) => {
+    if (Array.isArray(resData)) return resData;
+    if (resData && Array.isArray(resData[key])) return resData[key];
+    if (resData && Array.isArray(resData.data)) return resData.data;
+    return [];
+  };
+
   const fetchAll = () => {
-  api.get("/issues", { headers })
-    .then(res => setIssues(Array.isArray(res.data) ? res.data : []))
-    .catch(() => setIssues([]));
-  api.get("/fines", { headers })
-    .then(res => setFines(Array.isArray(res.data) ? res.data : []))
-    .catch(() => setFines([]));
-  api.get("/books", { headers })
-    .then(res => setBooks(Array.isArray(res.data) ? res.data : []))
-    .catch(() => setBooks([]));
-};
-  
+    api.get("/api/issues", { headers })
+      .then(res => setIssues(extractArray(res.data, "issues")))
+      .catch(() => setIssues([]));
+    api.get("/api/fines", { headers })
+      .then(res => setFines(extractArray(res.data, "fines")))
+      .catch(() => setFines([]));
+    api.get("/api/books", { headers })
+      .then(res => setBooks(extractArray(res.data, "books")))
+      .catch(() => setBooks([]));
+  };
 
   useEffect(() => { fetchAll(); }, []);
+
   const handleSearch = async () => {
     if (!search) { fetchAll(); return; }
-    const res = await api.get(`/books/search?query=${search}`, { headers });
-    setBooks(res.data);
+    try {
+      const res = await api.get(`/api/books/search?query=${search}`, { headers });
+      setBooks(extractArray(res.data, "books"));
+    } catch (err) {
+      console.log(err);
+      setBooks([]);
+    }
   };
 
   const handleRenew = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/issues/renew", { issue_id: renewId }, { headers });
+      const res = await api.post("/api/issues/renew", { issue_id: renewId }, { headers });
       setRenewMsg("✅ " + res.data.message);
       fetchAll();
       setRenewId("");
@@ -97,7 +109,6 @@ function StudentDashboard() {
 
         <div style={styles.content}>
 
-          {/* DASHBOARD */}
           {activePage === "dashboard" && (
             <div>
               <h2 style={styles.heading}>🏠 My Dashboard</h2>
@@ -153,7 +164,6 @@ function StudentDashboard() {
             </div>
           )}
 
-          {/* PROFILE */}
           {activePage === "profile" && (
             <div>
               <h2 style={styles.heading}>👤 My Profile</h2>
@@ -175,7 +185,6 @@ function StudentDashboard() {
             </div>
           )}
 
-          {/* MY BOOKS */}
           {activePage === "mybooks" && (
             <div>
               <h2 style={styles.heading}>📋 My Issued Books</h2>
@@ -210,7 +219,6 @@ function StudentDashboard() {
                 </table>
               </div>
 
-              {/* RENEW BOOK */}
               <div style={styles.tableBox}>
                 <h3 style={styles.tableTitle}>🔄 Renew Book</h3>
                 <form onSubmit={handleRenew} style={{ display: "flex", gap: "10px", alignItems: "flex-end", flexWrap: "wrap" }}>
@@ -228,7 +236,6 @@ function StudentDashboard() {
             </div>
           )}
 
-          {/* MY FINES */}
           {activePage === "fines" && (
             <div>
               <h2 style={styles.heading}>💰 My Fines</h2>
@@ -268,7 +275,6 @@ function StudentDashboard() {
             </div>
           )}
 
-          {/* SEARCH BOOKS */}
           {activePage === "search" && (
             <div>
               <h2 style={styles.heading}>🔍 Search Books</h2>
@@ -312,7 +318,6 @@ function StudentDashboard() {
             </div>
           )}
 
-          {/* HISTORY */}
           {activePage === "history" && (
             <div>
               <h2 style={styles.heading}>📖 Borrowing History</h2>
