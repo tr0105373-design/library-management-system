@@ -15,6 +15,23 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+router.get('/search', auth, async (req, res) => {
+  const { query } = req.query;
+  try {
+    const result = await db.query(
+      `SELECT m.*, u.name, u.email, u.role
+       FROM members m
+       JOIN users u ON m.user_id = u.user_id
+       WHERE u.name ILIKE $1 OR u.email ILIKE $1`,
+      [`%${query}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Error searching members' });
+  }
+});
+
 router.post('/add', auth, async (req, res) => {
   const { user_id, member_type, max_books } = req.body;
   try {
